@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F4F2EF" media="(prefers-color-scheme: light)">
 <title>float</title>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -637,7 +637,14 @@ async function boot(){
   setState({settings,categories,lastStats:null});
   initDrawer();initFAB();
   document.getElementById('sheet-backdrop').addEventListener('click',()=>{document.querySelectorAll('.bottom-sheet.visible').forEach(s=>s.classList.remove('visible'));document.body.classList.remove('sheet-open')});
-  if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then(() => console.log('SW registered'))
+      .catch(err => console.error('SW failed', err));
+  });
+}
   navigate('dashboard');
 }
 boot().catch(console.error);
