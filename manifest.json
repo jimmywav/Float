@@ -1,8 +1,9 @@
 {
+  "id": "/",
   "name": "float",
   "short_name": "float",
   "description": "Fortnightly budget tracker",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
