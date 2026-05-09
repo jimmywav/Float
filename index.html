@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F4F2EF" media="(prefers-color-scheme: light)">
+  <title>float</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+
+<!-- ─── App Shell ──────────────────────────────────────────── -->
+<div id="app">
+
+  <!-- Drawer overlay -->
+  <div id="drawer-overlay"></div>
+
+  <!-- Side drawer -->
+  <nav id="drawer" role="navigation" aria-label="Main navigation">
+    <div class="dr-logo">float<span>.</span></div>
+    <a class="dr-item active" data-view="dashboard" role="menuitem">
+      <i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard
+    </a>
+    <a class="dr-item" data-view="transactions" role="menuitem">
+      <i class="ti ti-receipt" aria-hidden="true"></i> Transactions
+    </a>
+    <a class="dr-item" data-view="gig" role="menuitem">
+      <i class="ti ti-bike" aria-hidden="true"></i> Gig runs
+    </a>
+    <a class="dr-item" data-view="history" role="menuitem">
+      <i class="ti ti-chart-bar" aria-hidden="true"></i> History
+    </a>
+    <div class="dr-section">Account</div>
+    <a class="dr-item" data-view="settings" role="menuitem">
+      <i class="ti ti-settings" aria-hidden="true"></i> Settings
+    </a>
+    <div class="dr-footer">
+      float v1.0<br>
+      Offline PWA · Data stored on-device
+    </div>
+  </nav>
+
+  <!-- Main view container -->
+  <main id="main" role="main"></main>
+
+  <!-- FAB + speed dial -->
+  <div id="fab-container">
+    <div id="fab-dial" aria-hidden="true">
+      <button class="fab-option" id="fab-gig" aria-label="Log gig run">
+        <i class="ti ti-bike" aria-hidden="true"></i> Log gig run
+      </button>
+      <button class="fab-option" id="fab-expense" aria-label="Log expense">
+        <i class="ti ti-shopping-bag" aria-hidden="true"></i> Log expense
+      </button>
+    </div>
+    <button id="fab" aria-label="Add" aria-expanded="false">
+      <i class="ti ti-plus" aria-hidden="true"></i>
+    </button>
+  </div>
+
+</div>
+
+<!-- ─── Bottom Sheet: Log Expense ─────────────────────────── -->
+<div id="expense-sheet" class="bottom-sheet" role="dialog" aria-label="Log expense" aria-modal="true">
+  <div class="sheet-handle" role="button" aria-label="Close"></div>
+  <div class="sheet-title">Log expense</div>
+
+  <label class="field-label">Category</label>
+  <div class="cat-grid" id="expense-cat-grid">
+    <!-- Populated by modals.js -->
+  </div>
+
+  <div class="amt-box">
+    <div class="amt-display">
+      <span class="amt-cur">$</span>
+      <input class="amt-val-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" aria-label="Amount">
+    </div>
+    <div class="amt-hint">Select a category</div>
+  </div>
+
+  <label class="field-label" for="expense-note">Note</label>
+  <input class="note-input" id="expense-note" type="text" placeholder="e.g. Woolies run" autocomplete="off">
+
+  <button class="save-btn" aria-label="Save expense">
+    <i class="ti ti-check" aria-hidden="true"></i> Save expense
+  </button>
+  <button class="close-btn" style="display:none" aria-label="Close">Close</button>
+</div>
+
+<!-- ─── Bottom Sheet: Log Gig Run ─────────────────────────── -->
+<div id="gig-sheet" class="bottom-sheet" role="dialog" aria-label="Log gig run" aria-modal="true">
+  <div class="sheet-handle" role="button" aria-label="Close"></div>
+  <div class="sheet-title">Log gig run</div>
+
+  <label class="field-label">Amount earned</label>
+  <div class="amt-box" style="margin-bottom:10px">
+    <div class="amt-display">
+      <span class="amt-cur">$</span>
+      <input class="gig-amt-input amt-val-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" aria-label="Amount earned">
+    </div>
+  </div>
+
+  <label class="field-label">Time clocked in</label>
+  <div class="time-grid">
+    <div class="time-input-wrap">
+      <input class="gig-hr-input time-val-input" type="number" inputmode="numeric" min="0" max="23" placeholder="0" aria-label="Hours">
+      <div class="time-unit">hours</div>
+    </div>
+    <div class="time-input-wrap">
+      <input class="gig-min-input time-val-input" type="number" inputmode="numeric" min="0" max="59" placeholder="0" aria-label="Minutes">
+      <div class="time-unit">minutes</div>
+    </div>
+  </div>
+
+  <div class="rate-preview" style="display:none" aria-live="polite">
+    <!-- Populated dynamically -->
+  </div>
+
+  <label class="field-label" for="gig-note">Note <span style="font-weight:400;color:var(--text3)">(optional)</span></label>
+  <input class="gig-note-input note-input" id="gig-note" type="text" placeholder="e.g. Saturday night Uber Eats" autocomplete="off">
+
+  <button class="save-btn">
+    <i class="ti ti-check" aria-hidden="true"></i> Save gig run
+  </button>
+  <button class="close-btn" style="display:none" aria-label="Close">Close</button>
+</div>
+
+<!-- ─── Modal: Delete Confirmation ────────────────────────── -->
+<div id="delete-modal" class="modal-overlay" role="dialog" aria-label="Confirm delete" aria-modal="true">
+  <div class="modal">
+    <div class="modal-body" style="text-align:center;padding:22px 18px 16px">
+      <div class="del-icon"><i class="ti ti-trash" aria-hidden="true"></i></div>
+      <div class="del-title">Delete this transaction?</div>
+      <span class="del-tx-name"></span>
+      <span class="del-tx-meta"></span>
+      <div class="btn-row" style="margin-top:16px">
+        <button class="btn-cancel btn-cancel-delete">Cancel</button>
+        <button class="btn-confirm-delete">
+          <i class="ti ti-trash" aria-hidden="true"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Bottom Sheet: Add/Edit Category ───────────────────── -->
+<div id="cat-modal" class="modal-overlay" role="dialog" aria-label="Edit category" aria-modal="true">
+  <div class="modal" style="max-height:80svh;overflow-y:auto">
+    <div class="modal-head">
+      <span class="sheet-title" style="font-size:15px;margin:0">Edit category</span>
+      <button class="close-btn" aria-label="Close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <label class="field-label" for="cat-name-input">Name</label>
+      <input class="text-input" id="cat-name-input" type="text" placeholder="Category name" autocomplete="off" style="margin-bottom:10px">
+
+      <label class="field-label" for="cat-budget-input">Budget per period</label>
+      <div style="position:relative;margin-bottom:10px">
+        <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:15px;pointer-events:none">$</span>
+        <input class="num-input" id="cat-budget-input" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" style="padding-left:28px;margin-bottom:0">
+      </div>
+
+      <label class="field-label">Type</label>
+      <div class="type-toggle">
+        <button class="tt-btn on" data-type="variable">Variable</button>
+        <button class="tt-btn" data-type="fixed">Fixed bill</button>
+      </div>
+
+      <label class="field-label">Icon</label>
+      <div class="icon-grid">
+        <!-- Populated by settings.js -->
+      </div>
+    </div>
+    <div class="modal-foot" style="justify-content:space-between">
+      <button class="btn-delete-cat" style="display:none">
+        <i class="ti ti-trash" aria-hidden="true"></i> Delete
+      </button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn-cancel close-btn">Cancel</button>
+        <button class="save-btn" style="width:auto;padding:12px 20px">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Sheet backdrop ─────────────────────────────────────── -->
+<div class="sheet-backdrop" id="sheet-backdrop"></div>
+
+<!-- ─── App bootstrap ─────────────────────────────────────── -->
+<script type="module">
+  import { seedIfNeeded, getAllSettings, getCategories } from './js/settings.js';
+  import { setAppState, navigate }                       from './js/router.js';
+  import { initDrawer }                                   from './js/drawer.js';
+  import { initFAB }                                      from './js/ui/modals.js';
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
+
+  async function boot() {
+    // Seed DB on first run
+    await seedIfNeeded();
+
+    // Load shared state
+    const settings   = await getAllSettings();
+    const categories = await getCategories();
+    setAppState({ settings, categories, lastStats: null });
+
+    // Init UI
+    initDrawer();
+    initFAB();
+
+    // Wire sheet backdrop
+    document.getElementById('sheet-backdrop')?.addEventListener('click', () => {
+      document.querySelectorAll('.bottom-sheet.visible').forEach(s => s.classList.remove('visible'));
+      document.body.classList.remove('sheet-open');
+    });
+
+    // Wire close buttons on sheets
+    document.querySelectorAll('.bottom-sheet .sheet-handle').forEach(el => {
+      el.addEventListener('click', () => {
+        el.closest('.bottom-sheet').classList.remove('visible');
+        document.body.classList.remove('sheet-open');
+      });
+    });
+
+    // Navigate to dashboard
+    navigate('dashboard');
+  }
+
+  boot().catch(console.error);
+</script>
+
+</body>
+</html>
