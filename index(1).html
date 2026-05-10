@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>float</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ── VARIABLES ── */
+:root {
+  --green: #1D9E75;
+  --green-light: #E1F5EE;
+  --green-mid: #9FE1CB;
+  --green-dark: #085041;
+  --amber: #EF9F27;
+  --amber-light: #FAEEDA;
+  --amber-dark: #854F0B;
+  --red: #E24B4A;
+  --red-light: #FCEBEB;
+  --red-dark: #A32D2D;
+  --blue-light: #E6F1FB;
+  --blue-dark: #0C447C;
+  --bg: #F4F2EF;
+  --surface: #FFFFFF;
+  --surface2: #EEEAE4;
+  --border: rgba(0,0,0,0.09);
+  --border2: rgba(0,0,0,0.05);
+  --text: #1A1A18;
+  --text2: #6B6860;
+  --text3: #A09D97;
+  --radius-sm: 12px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --topbar-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #0C0C0C;
+    --surface2: #161616;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.04);
+    --text: #F0EDEA;
+    --text2: #8A8780;
+    --text3: #5A5855;
+    --green-light: rgba(29,158,117,0.15);
+    --green-dark: #5ECBA1;
+    --amber-light: rgba(239,159,39,0.15);
+    --amber-dark: #F0B84A;
+    --red-light: rgba(226,75,74,0.15);
+    --red-dark: #E87877;
+    --blue-light: rgba(59,130,246,0.15);
+    --blue-dark: #7BB3F4;
+  }
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── TOPBAR ── */
+#topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  z-index: 20;
+  gap: 12px;
+}
+#topbar-title-wrap { flex: 1; }
+#topbar-title { font-size: 20px; font-weight: 600; line-height: 1.2; }
+#topbar-sub { font-size: 12px; color: var(--text2); font-weight: 500; }
+.topbar-btn {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--text); border-radius: 10px; flex-shrink: 0;
+}
+.topbar-btn:active { background: var(--surface2); }
+.hamburger { display: flex; flex-direction: column; gap: 5px; width: 20px; }
+.hamburger span { display: block; height: 2px; background: var(--text); border-radius: 2px; }
+.hamburger span:nth-child(1) { width: 20px; }
+.hamburger span:nth-child(2) { width: 14px; }
+.hamburger span:nth-child(3) { width: 17px; }
+
+/* ── MAIN SCROLL AREA ── */
+#main {
+  position: fixed;
+  top: var(--topbar-h);
+  left: 0; right: 0; bottom: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 14px 14px 100px;
+}
+#main::-webkit-scrollbar { display: none; }
+
+/* ── DRAWER ── */
+#drawer-overlay {
+  position: fixed; inset: 0; z-index: 40;
+  background: rgba(0,0,0,0.55);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.28s cubic-bezier(0.4,0,0.2,1);
+}
+#drawer-overlay.visible { opacity: 1; pointer-events: auto; }
+#drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: min(75vw, 300px);
+  background: var(--surface);
+  z-index: 50;
+  display: flex; flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  padding-bottom: var(--safe-bottom);
+  pointer-events: none;
+}
+#drawer.open { transform: translateX(0); pointer-events: auto; }
+.dr-logo {
+  padding: 28px 20px 20px;
+  font-size: 22px; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 2px;
+}
+.dr-logo .dot { color: var(--green); }
+.dr-nav { flex: 1; padding: 8px 0; }
+.dr-section {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text3);
+  padding: 14px 20px 6px;
+}
+.dr-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 20px; cursor: pointer;
+  font-size: 15px; font-weight: 500; color: var(--text2);
+}
+.dr-item i { font-size: 20px; }
+.dr-item.active { color: var(--green); background: var(--green-light); font-weight: 600; }
+.dr-item:active { background: var(--surface2); }
+.dr-divider { height: 1px; background: var(--border); margin: 8px 0; }
+.dr-footer { padding: 16px 20px; font-size: 12px; color: var(--text3); line-height: 1.7; }
+
+/* ── FAB ── */
+#fab-container {
+  position: fixed;
+  bottom: calc(24px + var(--safe-bottom));
+  right: 20px; z-index: 30;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  pointer-events: none;
+}
+#fab {
+  width: 60px; height: 60px;
+  background: var(--green); border-radius: 50%; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(29,158,117,0.4);
+  color: #fff; font-size: 26px;
+  pointer-events: auto;
+}
+#fab i { transition: transform 0.22s cubic-bezier(0.4,0,0.2,1); display: block; }
+#fab.open i { transform: rotate(45deg); }
+#fab-dial {
+  display: flex; flex-direction: column; gap: 10px; align-items: center;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translateY(10px);
+  transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+}
+#fab-dial.visible { opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0); }
+.fab-opt {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 50px; padding: 10px 16px 10px 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  cursor: pointer; white-space: nowrap;
+}
+.fab-opt-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--green-light); color: var(--green);
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.fab-opt span { font-size: 14px; font-weight: 600; color: var(--text); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.card-header {
+  padding: 14px 16px 0;
+  font-size: 12px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--text2);
+}
+.card-body { padding: 14px 16px; }
+
+/* ── METRICS GRID ── */
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.metric {
+  background: var(--surface); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); padding: 14px 16px;
+}
+.metric-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text3); margin-bottom: 6px;
+}
+.metric-value { font-size: 24px; font-weight: 700; letter-spacing: -0.8px; line-height: 1.1; }
+.metric-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.metric-value.green { color: var(--green); }
+.metric-value.amber { color: var(--amber); }
+.metric-value.red   { color: var(--red); }
+
+/* ── ALERTS ── */
+.alert-bar {
+  border-radius: var(--radius-md); padding: 12px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px; font-size: 13px; font-weight: 500; line-height: 1.4;
+  border-width: 1px; border-style: solid;
+}
+.alert-bar.warning { background: var(--amber-light); color: var(--amber-dark); border-color: var(--amber); }
+.alert-bar.success { background: var(--green-light); color: var(--green-dark); border-color: var(--green-mid); }
+.alert-bar i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── PACE CHART ── */
+.pace-chart-wrap { display: flex; flex-direction: column; gap: 10px; }
+.pace-row { display: flex; gap: 4px; height: 80px; align-items: flex-end; }
+.pace-day { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.pace-bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+.pace-bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; }
+.pace-bar.past   { background: var(--green-mid); }
+.pace-bar.today  { background: var(--green); }
+.pace-bar.future { background: var(--surface2); border: 1.5px dashed var(--green); border-bottom: none; }
+.pace-label { font-size: 10px; color: var(--text3); font-weight: 500; }
+.pace-label.today { color: var(--green); font-weight: 700; }
+.pace-legend { display: flex; gap: 14px; padding-top: 8px; font-size: 11px; color: var(--text2); flex-wrap: wrap; }
+.pace-legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+.legend-dot.past   { background: var(--green-mid); }
+.legend-dot.today  { background: var(--green); }
+.legend-dot.future { background: var(--surface2); border: 1.5px dashed var(--green); }
+
+/* ── BUDGET ROWS ── */
+.budget-row { padding: 12px 0; border-bottom: 1px solid var(--border2); }
+.budget-row:last-child { border-bottom: none; padding-bottom: 0; }
+.budget-row:first-child { padding-top: 0; }
+.budget-row-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.budget-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: var(--surface2); display: flex; align-items: center; justify-content: center;
+  font-size: 17px; color: var(--text2); flex-shrink: 0;
+}
+.budget-name { font-size: 14px; font-weight: 500; flex: 1; }
+.budget-amounts { font-size: 13px; color: var(--text2); text-align: right; }
+.budget-amounts strong { color: var(--text); }
+.progress-bar { height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; }
+.progress-fill.ok      { background: var(--green); }
+.progress-fill.caution { background: var(--amber); }
+.progress-fill.over    { background: var(--red); }
+.budget-sub { font-size: 12px; margin-top: 5px; }
+.budget-sub.ok      { color: var(--text3); }
+.budget-sub.caution { color: var(--amber-dark); }
+.budget-sub.over    { color: var(--red-dark); }
+
+/* ── PILLS / BADGES ── */
+.pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 50px; font-size: 11px; font-weight: 600; }
+.pill.green  { background: var(--green-light);  color: var(--green-dark); }
+.pill.red    { background: var(--red-light);    color: var(--red-dark); }
+.pill.amber  { background: var(--amber-light);  color: var(--amber-dark); }
+.pill.blue   { background: var(--blue-light);   color: var(--blue-dark); }
+
+/* ── FIXED BILLS CHIPS ── */
+.bills-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.bill-chip { display: flex; align-items: center; gap: 6px; background: var(--surface2); border-radius: 50px; padding: 8px 12px; font-size: 13px; }
+.bill-chip i { font-size: 16px; color: var(--text2); }
+.bill-chip-name { font-weight: 500; }
+.bill-chip-amt  { color: var(--text2); }
+.bill-chip-freq { font-size: 10px; color: var(--text3); background: var(--surface); border-radius: 4px; padding: 1px 4px; }
+
+/* ── PERIOD NAVIGATOR ── */
+.period-nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; margin-bottom: 10px; }
+.period-nav-label { font-size: 15px; font-weight: 600; text-align: center; flex: 1; }
+.period-nav-btn {
+  width: 44px; height: 44px; border: none; background: none; cursor: pointer;
+  color: var(--text); font-size: 22px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.period-nav-btn:disabled { color: var(--text3); cursor: default; }
+.period-nav-btn:not(:disabled):active { background: var(--surface2); }
+
+
+/* ── TRANSACTION ROWS ── */
+.tx-group { margin-bottom: 14px; }
+.tx-day-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); padding: 0 0 8px; }
+.tx-swipe { position: relative; overflow: hidden; border-radius: var(--radius-md); margin-bottom: 4px; background: var(--surface); border: 1px solid var(--border); }
+.tx-row {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+  transform: translateX(0); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+  position: relative; background: var(--surface); z-index: 1;
+}
+.tx-swipe.revealed .tx-row { transform: translateX(-100px); }
+.tx-icon { width: 38px; height: 38px; border-radius: 11px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--text2); flex-shrink: 0; }
+.tx-info { flex: 1; min-width: 0; }
+.tx-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-sub  { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.tx-amount { font-size: 15px; font-weight: 700; flex-shrink: 0; }
+.tx-amount.expense { color: var(--red); }
+.tx-amount.gig     { color: var(--green); }
+.tx-actions { position: absolute; right: 0; top: 0; bottom: 0; display: flex; z-index: 0; }
+.tx-action { width: 50px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; font-size: 19px; color: #fff; }
+.tx-action.edit   { background: var(--blue-dark); }
+.tx-action.delete { background: var(--red); }
+.swipe-hint { font-size: 12px; color: var(--text3); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; }
+.empty-state { text-align: center; padding: 40px 20px; font-size: 14px; color: var(--text3); }
+
+/* ── GIG HERO ── */
+.gig-hero { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 16px; margin-bottom: 10px; text-align: center; }
+.gig-hero-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; }
+.gig-hero-amount { font-size: 36px; font-weight: 700; color: var(--green); letter-spacing: -1px; }
+.gig-hero-sub { font-size: 13px; color: var(--text2); margin-top: 6px; }
+.gig-hero-pills { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+
+/* ── HISTORY ── */
+.seg-control { display: flex; background: var(--surface2); border-radius: 12px; padding: 3px; margin-bottom: 14px; gap: 3px; }
+.seg-btn { flex: 1; padding: 9px; border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; background: none; color: var(--text2); font-family: 'DM Sans', sans-serif; }
+.seg-btn.active { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+.hist-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 10px; overflow: hidden; }
+.hist-card-header { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border2); }
+.hist-card-header-label { font-size: 15px; font-weight: 600; }
+.hist-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 16px; font-size: 14px; }
+.hist-row.bold { font-weight: 700; border-top: 1px solid var(--border); }
+.hist-row-label { color: var(--text2); }
+.hist-row-value { font-weight: 500; }
+.hist-row-value.green { color: var(--green); }
+.hist-row-value.red   { color: var(--red); }
+.hist-divider { height: 1px; background: var(--border); margin: 4px 0; }
+.hist-cat-section { padding: 12px 16px; }
+.hist-cat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 10px; }
+.hist-cat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.hist-cat-name { font-size: 13px; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-mini-bar { flex: 2; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.hist-mini-fill { height: 100%; border-radius: 3px; background: var(--green); }
+.hist-cat-amt { font-size: 12px; color: var(--text2); flex-shrink: 0; }
+
+/* ── SETTINGS ── */
+.settings-section { margin-bottom: 20px; }
+.settings-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; padding: 0 4px; }
+.settings-card { background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border2); min-height: 54px; }
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label { font-size: 15px; font-weight: 500; }
+.settings-row-sub   { font-size: 12px; color: var(--text3); margin-top: 2px; }
+.settings-nav-row { cursor: pointer; }
+.settings-nav-row:active { background: var(--surface2); }
+.toggle { width: 50px; height: 28px; border-radius: 50px; background: var(--surface2); position: relative; cursor: pointer; border: 1px solid var(--border); transition: background 0.2s; flex-shrink: 0; }
+.toggle.on { background: var(--green); border-color: var(--green); }
+.toggle::after { content: ''; position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.2s cubic-bezier(0.4,0,0.2,1); box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { transform: translateX(22px); }
+.s-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; font-weight: 500; }
+.s-input:focus { border-color: var(--green); }
+.s-select { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 8px 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; appearance: none; -webkit-appearance: none; font-weight: 500; cursor: pointer; }
+.seg-sm { display: flex; background: var(--surface2); border-radius: 10px; padding: 3px; gap: 2px; }
+.seg-sm-btn { padding: 6px 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; background: none; color: var(--text2); font-family: 'DM Sans', sans-serif; }
+.seg-sm-btn.active { background: var(--surface); color: var(--text); font-weight: 600; }
+
+/* ── BUTTONS ── */
+.btn-danger { width: 100%; padding: 14px; border: 1.5px solid var(--red); border-radius: var(--radius-md); background: none; color: var(--red); font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btn-danger:active { background: var(--red-light); }
+.btn-primary { width: 100%; padding: 14px; border: none; border-radius: var(--radius-md); background: var(--green); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btn-primary:active { opacity: 0.85; }
+.btn-secondary { padding: 12px 20px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface2); color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+/* ── CATEGORIES VIEW ── */
+.cat-help { font-size: 13px; color: var(--text2); margin-bottom: 14px; line-height: 1.5; }
+.cat-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; padding: 0 4px; }
+.cat-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; cursor: pointer; border-bottom: 1px solid var(--border2); }
+.cat-row:last-child { border-bottom: none; }
+.cat-row:active { background: var(--surface2); }
+.cat-icon { width: 38px; height: 38px; border-radius: 11px; background: var(--green-light); display: flex; align-items: center; justify-content: center; font-size: 19px; color: var(--green); flex-shrink: 0; }
+.cat-info { flex: 1; }
+.cat-name { font-size: 15px; font-weight: 500; }
+.cat-meta { font-size: 12px; color: var(--text2); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+.add-cat-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: var(--radius-md); border: 1.5px dashed var(--border); background: none; cursor: pointer; color: var(--text2); font-size: 14px; font-weight: 500; width: 100%; font-family: 'DM Sans', sans-serif; margin-top: 10px; }
+.add-cat-btn:active { background: var(--surface2); }
+
+/* ── BOTTOM SHEETS ── */
+#sheet-backdrop { position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+body.sheet-open #sheet-backdrop { opacity: 1; pointer-events: auto; }
+.bottom-sheet { position: fixed; bottom: 0; left: 0; right: 0; z-index: 60; background: var(--surface); border-radius: 20px 20px 0 0; padding-bottom: var(--safe-bottom); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); max-height: 92dvh; overflow-y: auto; pointer-events: none; }
+.bottom-sheet.visible { transform: translateY(0); pointer-events: auto; }
+.bottom-sheet::-webkit-scrollbar { display: none; }
+.sheet-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 12px auto 0; cursor: pointer; }
+.sheet-title { font-size: 18px; font-weight: 700; text-align: center; padding: 14px 20px 0; }
+.sheet-body { padding: 16px 16px 24px; }
+.cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+.cat-grid-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px; border-radius: var(--radius-md); border: 1.5px solid var(--border); cursor: pointer; background: var(--surface2); }
+.cat-grid-item.selected { border-color: var(--green); background: var(--green-light); }
+.cat-grid-item i { font-size: 22px; color: var(--text2); }
+.cat-grid-item.selected i { color: var(--green); }
+.cat-grid-item span { font-size: 11px; font-weight: 500; color: var(--text2); text-align: center; line-height: 1.3; }
+.cat-grid-item.selected span { color: var(--green-dark); }
+.amount-wrap { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 8px 0; }
+.amount-prefix { font-size: 28px; font-weight: 700; color: var(--text2); }
+.amount-input { font-size: 44px; font-weight: 700; letter-spacing: -1px; border: none; background: none; color: var(--text); font-family: 'DM Sans', sans-serif; width: 180px; text-align: center; outline: none; }
+.amount-input::placeholder { color: var(--text3); }
+.remaining-hint { text-align: center; font-size: 13px; color: var(--text2); margin-bottom: 12px; min-height: 20px; }
+.remaining-hint.warn { color: var(--red); }
+.note-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; margin-bottom: 14px; }
+.note-input:focus { border-color: var(--green); }
+.note-input::placeholder { color: var(--text3); }
+.duration-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.duration-field { flex: 1; }
+.duration-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+.duration-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 22px; font-weight: 700; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; text-align: center; }
+.duration-input:focus { border-color: var(--green); }
+.rate-preview { text-align: center; font-size: 13px; color: var(--green-dark); background: var(--green-light); border-radius: 10px; padding: 8px; margin-bottom: 14px; font-weight: 500; min-height: 36px; display: flex; align-items: center; justify-content: center; }
+
+/* ── DELETE MODAL ── */
+#delete-modal { position: fixed; inset: 0; z-index: 70; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+#delete-modal.visible { opacity: 1; pointer-events: auto; }
+#delete-modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+#delete-modal-box { position: relative; z-index: 1; background: var(--surface); border-radius: var(--radius-lg); padding: 28px 24px 24px; width: 100%; max-width: 320px; text-align: center; }
+.del-icon-wrap { width: 56px; height: 56px; border-radius: 50%; background: var(--red-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; font-size: 26px; color: var(--red); }
+.del-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.del-name  { font-size: 14px; font-weight: 500; color: var(--text2); margin-bottom: 4px; }
+.del-meta  { font-size: 13px; color: var(--text3); margin-bottom: 20px; }
+.del-buttons { display: flex; gap: 10px; }
+.del-buttons .btn-secondary { flex: 1; }
+.del-btn-delete { flex: 1; padding: 12px; border: none; border-radius: var(--radius-md); background: var(--red); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+/* ── CATEGORY MODAL ── */
+#cat-modal { position: fixed; inset: 0; z-index: 70; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+#cat-modal.visible { opacity: 1; pointer-events: auto; }
+#cat-modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); }
+#cat-modal-box { position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface); border-radius: 20px 20px 0 0; max-height: 92dvh; display: flex; flex-direction: column; padding-bottom: var(--safe-bottom); }
+#cat-modal-box::-webkit-scrollbar { display: none; }
+.cat-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 17px; font-weight: 700; }
+.cat-modal-body { flex: 1; overflow-y: auto; padding: 20px 16px; }
+.cat-modal-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+.form-group { margin-bottom: 18px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 8px; display: block; }
+.form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--text); outline: none; }
+.form-input:focus { border-color: var(--green); }
+.amt-input-wrap { position: relative; }
+.amt-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; font-weight: 600; color: var(--text2); }
+.amt-input-wrap .form-input { padding-left: 26px; }
+.type-toggle { display: flex; gap: 8px; }
+.type-btn { flex: 1; padding: 10px; border: 1.5px solid var(--border); border-radius: var(--radius-md); background: var(--surface2); color: var(--text2); font-size: 14px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.type-btn.active { border-color: var(--green); background: var(--green-light); color: var(--green-dark); font-weight: 600; }
+.freq-toggle { display: flex; gap: 8px; }
+.icon-picker { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; }
+.icon-btn { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface2); font-size: 20px; color: var(--text2); cursor: pointer; }
+.icon-btn.selected { border-color: var(--green); background: var(--green-light); color: var(--green); }
+.close-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--text2); }
+.btn-del-cat { padding: 12px 16px; border: none; border-radius: var(--radius-md); background: var(--red-light); color: var(--red-dark); font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.flex-1 { flex: 1; }
+.loading { text-align: center; padding: 40px; color: var(--text3); font-size: 14px; }
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <button class="topbar-btn" id="topbar-hamburger" aria-label="Menu">
+    <div class="hamburger"><span></span><span></span><span></span></div>
+  </button>
+  <div id="topbar-title-wrap">
+    <div id="topbar-title">float</div>
+    <div id="topbar-sub"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main"></div>
+
+<!-- DRAWER -->
+<div id="drawer-overlay"></div>
+<nav id="drawer">
+  <div class="dr-logo">float<span class="dot">.</span></div>
+  <div class="dr-nav">
+    <div class="dr-item active" data-view="dashboard"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="dr-item" data-view="transactions"><i class="ti ti-receipt"></i> Transactions</div>
+    <div class="dr-item" data-view="gig"><i class="ti ti-bike"></i> Gig runs</div>
+    <div class="dr-item" data-view="history"><i class="ti ti-chart-bar"></i> History</div>
+    <div class="dr-divider"></div>
+    <div class="dr-section">Account</div>
+    <div class="dr-item" data-view="settings"><i class="ti ti-settings"></i> Settings</div>
+  </div>
+  <div class="dr-footer">float v1.0<br>Offline PWA · Data stored on-device</div>
+</nav>
+
+<!-- FAB -->
+<div id="fab-container">
+  <div id="fab-dial">
+    <div class="fab-opt" id="fab-gig">
+      <div class="fab-opt-icon"><i class="ti ti-bike"></i></div>
+      <span>Log gig run</span>
+    </div>
+    <div class="fab-opt" id="fab-expense">
+      <div class="fab-opt-icon"><i class="ti ti-shopping-bag"></i></div>
+      <span>Log expense</span>
+    </div>
+  </div>
+  <button id="fab" aria-label="Add"><i class="ti ti-plus"></i></button>
+</div>
+
+<!-- SHEET BACKDROP -->
+<div id="sheet-backdrop"></div>
+
+<!-- EXPENSE SHEET -->
+<div class="bottom-sheet" id="expense-sheet">
+  <div class="sheet-handle" id="expense-handle"></div>
+  <div class="sheet-title" id="expense-title">Log expense</div>
+  <div class="sheet-body">
+    <div class="cat-grid" id="expense-cat-grid"></div>
+    <div class="amount-wrap">
+      <span class="amount-prefix">$</span>
+      <input class="amount-input" id="expense-amount" type="number" inputmode="decimal" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="remaining-hint" id="expense-hint"></div>
+    <input class="note-input" id="expense-note" type="text" placeholder="Note (optional)">
+    <button class="btn-primary" id="expense-save">Save expense</button>
+  </div>
+</div>
+
+<!-- GIG SHEET -->
+<div class="bottom-sheet" id="gig-sheet">
+  <div class="sheet-handle" id="gig-handle"></div>
+  <div class="sheet-title" id="gig-title">Log gig run</div>
+  <div class="sheet-body">
+    <div class="amount-wrap">
+      <span class="amount-prefix">$</span>
+      <input class="amount-input" id="gig-amount" type="number" inputmode="decimal" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="duration-row">
+      <div class="duration-field">
+        <div class="duration-label">Hours</div>
+        <input class="duration-input" id="gig-hours" type="number" inputmode="numeric" placeholder="0" min="0" max="23">
+      </div>
+      <div class="duration-field">
+        <div class="duration-label">Minutes</div>
+        <input class="duration-input" id="gig-mins" type="number" inputmode="numeric" placeholder="0" min="0" max="59">
+      </div>
+    </div>
+    <div class="rate-preview" id="gig-rate-preview"></div>
+    <input class="note-input" id="gig-note" type="text" placeholder="Note (optional)">
+    <button class="btn-primary" id="gig-save">Save gig run</button>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div id="delete-modal">
+  <div id="delete-modal-overlay"></div>
+  <div id="delete-modal-box">
+    <div class="del-icon-wrap"><i class="ti ti-trash"></i></div>
+    <div class="del-title">Delete this?</div>
+    <div class="del-name" id="del-name"></div>
+    <div class="del-meta" id="del-meta"></div>
+    <div class="del-buttons">
+      <button class="btn-secondary" id="del-cancel">Cancel</button>
+      <button class="del-btn-delete" id="del-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div id="cat-modal">
+  <div id="cat-modal-overlay"></div>
+  <div id="cat-modal-box">
+    <div class="cat-modal-header">
+      <span id="cat-modal-title">Edit category</span>
+      <button class="close-btn" id="cat-modal-close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="cat-modal-body">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input class="form-input" id="cat-name" type="text" placeholder="Category name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Budget per period</label>
+        <div class="amt-input-wrap">
+          <span class="amt-prefix">$</span>
+          <input class="form-input" id="cat-budget" type="number" inputmode="decimal" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <div class="type-toggle">
+          <button class="type-btn active" id="cat-type-variable">Variable</button>
+          <button class="type-btn" id="cat-type-fixed">Fixed bill</button>
+        </div>
+      </div>
+      <div class="form-group" id="cat-freq-group" style="display:none">
+        <label class="form-label">Bill frequency</label>
+        <div class="freq-toggle">
+          <button class="type-btn active" id="cat-freq-period">Per period</button>
+          <button class="type-btn" id="cat-freq-monthly">Monthly</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon</label>
+        <div class="icon-picker" id="icon-picker"></div>
+      </div>
+    </div>
+    <div class="cat-modal-footer">
+      <button class="btn-del-cat" id="cat-delete" style="display:none">Delete</button>
+      <div class="flex-1"></div>
+      <button class="btn-secondary" id="cat-cancel">Cancel</button>
+      <button class="btn-primary" id="cat-save" style="width:auto;padding:12px 24px">Save</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ============================================================
+   DATA LAYER - IndexedDB
+============================================================ */
+
+let _db = null;
+function openDB() {
+  if (_db) return Promise.resolve(_db);
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('float', 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('settings')) {
+        db.createObjectStore('settings', { keyPath: 'key' });
+      }
+      if (!db.objectStoreNames.contains('categories')) {
+        const cs = db.createObjectStore('categories', { keyPath: 'id' });
+        cs.createIndex('order', 'order');
+      }
+      if (!db.objectStoreNames.contains('transactions')) {
+        const ts = db.createObjectStore('transactions', { keyPath: 'id' });
+        ts.createIndex('periodKey', 'periodKey');
+        ts.createIndex('type', 'type');
+      }
+    };
+    req.onsuccess = e => { _db = e.target.result; res(_db); };
+    req.onerror   = () => rej(req.error);
+  });
+}
+
+function dbGet(store, key) {
+  return openDB().then(db => new Promise((res, rej) => {
+    const req = db.transaction(store, 'readonly').objectStore(store).get(key);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = () => rej(req.error);
+  }));
+}
+function dbPut(store, val) {
+  return openDB().then(db => new Promise((res, rej) => {
+    const req = db.transaction(store, 'readwrite').objectStore(store).put(val);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = () => rej(req.error);
+  }));
+}
+function dbDelete(store, key) {
+  return openDB().then(db => new Promise((res, rej) => {
+    const req = db.transaction(store, 'readwrite').objectStore(store).delete(key);
+    req.onsuccess = () => res();
+    req.onerror   = () => rej(req.error);
+  }));
+}
+function dbGetAll(store) {
+  return openDB().then(db => new Promise((res, rej) => {
+    const req = db.transaction(store, 'readonly').objectStore(store).getAll();
+    req.onsuccess = () => res(req.result);
+    req.onerror   = () => rej(req.error);
+  }));
+}
+function dbGetByIndex(store, indexName, value) {
+  return openDB().then(db => new Promise((res, rej) => {
+    const req = db.transaction(store, 'readonly').objectStore(store).index(indexName).getAll(value);
+    req.onsuccess = () => res(req.result);
+    req.onerror   = () => rej(req.error);
+  }));
+}
+
+async function getSetting(key) {
+  const r = await dbGet('settings', key);
+  return r ? r.value : undefined;
+}
+async function setSetting(key, value) { return dbPut('settings', { key, value }); }
+async function getAllSettings() {
+  const rows = await dbGetAll('settings');
+  const out = {};
+  rows.forEach(r => out[r.key] = r.value);
+  return out;
+}
+
+async function getCategories() {
+  const cats = await dbGetAll('categories');
+  return cats.sort((a, b) => a.order - b.order);
+}
+async function saveCategory(cat) { return dbPut('categories', cat); }
+async function deleteCategory(id) { return dbDelete('categories', id); }
+
+async function getTxForPeriod(periodKey) { return dbGetByIndex('transactions', 'periodKey', periodKey); }
+async function getAllTx() { return dbGetAll('transactions'); }
+async function saveTx(tx) { return dbPut('transactions', tx); }
+async function deleteTx(id) { return dbDelete('transactions', id); }
+
+async function seedIfNeeded() {
+  const seeded = await getSetting('seeded');
+  if (seeded) return;
+  const defaults = { income:0, payCycle:'fortnightly', payDay:2, alertPace:true, alertOver:true };
+  for (const [k, v] of Object.entries(defaults)) await setSetting(k, v);
+  const cats = [
+    { id:'cat_rent',  name:'Rent',       type:'fixed',    budget:0, icon:'ti-home',          order:0, createdAt:Date.now() },
+    { id:'cat_wifi',  name:'Wifi',       type:'fixed',    budget:0, icon:'ti-wifi',          order:1, createdAt:Date.now() },
+    { id:'cat_phone', name:'Phone plan', type:'fixed',    budget:0, icon:'ti-device-mobile', order:2, createdAt:Date.now() },
+    { id:'cat_groc',  name:'Groceries',  type:'variable', budget:0, icon:'ti-shopping-cart', order:3, createdAt:Date.now() },
+    { id:'cat_eat',   name:'Eating out', type:'variable', budget:0, icon:'ti-coffee',        order:4, createdAt:Date.now() },
+    { id:'cat_trans', name:'Transport',  type:'variable', budget:0, icon:'ti-car',           order:5, createdAt:Date.now() },
+  ];
+  for (const c of cats) await saveCategory(c);
+  await setSetting('seeded', true);
+}
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const parseDate  = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const formatDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const todayStr   = () => formatDate(new Date());
+const addDays    = (s, n) => { const d = parseDate(s); d.setDate(d.getDate()+n); return formatDate(d); };
+const diffDays   = (a, b) => Math.round((parseDate(b)-parseDate(a))/86400000);
+const fmtAUD     = n => (n < 0 ? '-$' : '$') + Math.abs(n).toFixed(2);
+const fmtPos     = n => '$' + Math.abs(n).toFixed(2);
+const fmtDur     = m => { if (!m) return '0m'; const h=Math.floor(m/60), mn=m%60; return h&&mn?`${h}h ${mn}m`:h?`${h}h`:`${mn}m`; };
+const genId      = p => `${p}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
+
+const DAY_NAMES      = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_NAMES_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH_NAMES    = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_SHORT    = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function fmtPeriodRange(start, end) {
+  const s = parseDate(start), e = parseDate(end);
+  const sDay=DAY_NAMES[s.getDay()], eDay=DAY_NAMES[e.getDay()];
+  const sd=s.getDate(), sm=s.getMonth(), sy=s.getFullYear();
+  const ed=e.getDate(), em=e.getMonth(), ey=e.getFullYear();
+  if (sy !== ey) return `${sDay} ${sd} ${MONTH_SHORT[sm]} - ${eDay} ${ed} ${MONTH_SHORT[em]} ${ey}`;
+  if (sm === em) return `${sDay} ${sd} - ${eDay} ${ed} ${MONTH_SHORT[em]}`;
+  return `${sDay} ${sd} ${MONTH_SHORT[sm]} - ${eDay} ${ed} ${MONTH_SHORT[em]}`;
+}
+
+/* ============================================================
+   PERIOD ENGINE
+============================================================ */
+const ANCHOR = '2025-01-07';
+
+function perPeriodBudget(cat, cfg) {
+  if (cat.type !== 'fixed' || cat.billFrequency !== 'monthly') return cat.budget || 0;
+  const periodsPerYear = cfg.payCycle === 'fortnightly' ? 26 : 52;
+  return (cat.budget * 12) / periodsPerYear;
+}
+
+function getPeriodStart(dateStr, cfg) {
+  const { payCycle='fortnightly', payDay=2 } = cfg;
+  const d = parseDate(dateStr);
+  const daysBack = (d.getDay() - payDay + 7) % 7;
+  const candidate = formatDate(new Date(d.getFullYear(), d.getMonth(), d.getDate() - daysBack));
+  if (payCycle === 'weekly') return candidate;
+  const weekNumber = Math.round(diffDays(ANCHOR, candidate) / 7);
+  return weekNumber % 2 === 0 ? candidate : addDays(candidate, -7);
+}
+function getPeriodEnd(start, cfg) { return addDays(start, cfg.payCycle==='fortnightly' ? 13 : 6); }
+function getPeriodLength(cfg) { return cfg.payCycle==='fortnightly' ? 14 : 7; }
+function getPeriodProgress(cfg) {
+  const t = todayStr();
+  const start = getPeriodStart(t, cfg);
+  return Math.min((diffDays(start, t)+1) / getPeriodLength(cfg), 1);
+}
+const curPeriodKey = cfg => getPeriodStart(todayStr(), cfg);
+const prevPK = (k, cfg) => addDays(k, -getPeriodLength(cfg));
+const nextPK = (k, cfg) => addDays(k,  getPeriodLength(cfg));
+
+function getPeriodDays(periodKey, cfg) {
+  const len = getPeriodLength(cfg), today = todayStr();
+  return Array.from({length:len}, (_,i) => {
+    const date = addDays(periodKey, i);
+    const d = parseDate(date);
+    return { date, label: DAY_NAMES[d.getDay()].slice(0,1),
+      isPast: date < today, isToday: date===today, isFuture: date > today };
+  });
+}
+
+/* ============================================================
+   BUDGET COMPUTATION
+============================================================ */
+function computeGigStats(runs) {
+  if (!runs.length) return { totalEarned:0, totalMinutes:0, runCount:0, avgHourlyRate:0, bestRate:0, worstRate:0 };
+  const totalEarned  = runs.reduce((s,g)=>s+g.amount, 0);
+  const totalMinutes = runs.reduce((s,g)=>s+(g.totalMinutes||0), 0);
+  const avg = totalMinutes > 0 ? Math.round((totalEarned/(totalMinutes/60))*100)/100 : 0;
+  const rates = runs.filter(g=>g.hourlyRate>0).map(g=>g.hourlyRate);
+  return { totalEarned, totalMinutes, runCount:runs.length, avgHourlyRate:avg,
+    bestRate: rates.length ? Math.max(...rates) : 0,
+    worstRate: rates.length ? Math.min(...rates) : 0 };
+}
+
+async function computeStats(periodKey, cfg, cats) {
+  const txs      = await getTxForPeriod(periodKey);
+  const expenses = txs.filter(t=>t.type==='expense');
+  const gigs     = txs.filter(t=>t.type==='gig');
+  const baseIncome  = cfg.income || 0;
+  const gigIncome   = gigs.reduce((s,g)=>s+g.amount, 0);
+  const totalIncome = baseIncome + gigIncome;
+  const fixedCats  = cats.filter(c=>c.type==='fixed');
+  const varCats    = cats.filter(c=>c.type==='variable');
+  const fixedTotal = fixedCats.reduce((s,c)=>s+perPeriodBudget(c,cfg), 0);
+  const spentByCat = {};
+  for (const t of expenses) if (t.categoryId) spentByCat[t.categoryId]=(spentByCat[t.categoryId]||0)+t.amount;
+  const varSpent   = Object.values(spentByCat).reduce((s,v)=>s+v, 0);
+  const totalSpent = fixedTotal + varSpent;
+  const remaining  = totalIncome - totalSpent;
+  const periodProgress = getPeriodProgress(cfg);
+  const byCategory = {};
+  for (const cat of [...fixedCats,...varCats]) {
+    const periodBudget = cat.type==='fixed' ? perPeriodBudget(cat,cfg) : (cat.budget||0);
+    const spent = spentByCat[cat.id]||0;
+    const pct   = periodBudget > 0 ? spent/periodBudget : 0;
+    const burnRate = periodProgress > 0 ? pct/periodProgress : 0;
+    byCategory[cat.id] = { budget:periodBudget, spent, remaining:periodBudget-spent, pct, burnRate,
+      status: pct>=1 ? 'over' : burnRate>1.3 ? 'caution' : 'ok' };
+  }
+  return { baseIncome, gigIncome, totalIncome, fixedTotal, varSpent, totalSpent, remaining,
+    periodProgress, byCategory, transactions:txs, expenses, gigRuns:gigs,
+    gigStats:computeGigStats(gigs), fixedCats, variableCats:varCats, categories:cats };
+}
+
+async function getDailyPace(periodKey, cfg) {
+  const txs  = await getTxForPeriod(periodKey);
+  const days = getPeriodDays(periodKey, cfg);
+  const spentByDay = {};
+  for (const t of txs) if (t.type==='expense') spentByDay[t.date]=(spentByDay[t.date]||0)+t.amount;
+  const pastDays = days.filter(d=>d.isPast||d.isToday);
+  const avgDaily = pastDays.length > 0 ? pastDays.reduce((s,d)=>s+(spentByDay[d.date]||0),0)/pastDays.length : 0;
+  const max = Math.max(avgDaily*1.5, ...Object.values(spentByDay), 1);
+  return days.map(d => ({ ...d, spent:spentByDay[d.date]||0,
+    heightPct: Math.min(((spentByDay[d.date]||(d.isFuture?avgDaily:0))/max)*100, 100) }));
+}
+
+function getAlerts(stats, cfg) {
+  if (!cfg.alertPace && !cfg.alertOver) return [];
+  const out = [];
+  const { byCategory:bc, variableCats:vc, remaining:rem, totalIncome:ti, periodProgress:pp } = stats;
+  if (rem < 0)
+    out.push({type:'warning',icon:'ti-alert-triangle',msg:`You're ${fmtPos(Math.abs(rem))} over total budget.`,priority:0});
+  else if (rem < ti*0.1 && ti>0)
+    out.push({type:'warning',icon:'ti-alert-triangle',msg:`Only ${fmtPos(rem)} remaining this period.`,priority:1});
+  if (cfg.alertOver) for (const c of vc) {
+    const cs=bc[c.id]; if(cs?.pct>=1) out.push({type:'warning',icon:'ti-alert-triangle',msg:`${c.name} over budget by ${fmtPos(cs.spent-cs.budget)}.`,priority:2});
+  }
+  if (cfg.alertPace) for (const c of vc) {
+    const cs=bc[c.id]; if(cs&&cs.pct<1&&cs.burnRate>1.35&&cs.pct>0.25)
+      out.push({type:'warning',icon:'ti-flame',msg:`${c.name} at ${Math.round(cs.pct*100)}% - only ${Math.round(pp*100)}% through period.`,priority:3});
+  }
+  if (!out.length && pp>0.65 && rem>ti*0.2)
+    out.push({type:'success',icon:'ti-circle-check',msg:`Looking good - ${fmtPos(rem)} left with ${Math.round((1-pp)*100)}% remaining.`,priority:99});
+  return out.sort((a,b)=>a.priority-b.priority).slice(0,2);
+}
+
+/* ============================================================
+   APP STATE + ROUTER
+============================================================ */
+let APP = { settings:{}, categories:[], lastStats:null };
+let curView = 'dashboard';
+let drawerOpen = false;
+
+function navigate(view, params={}) {
+  curView = view;
+  closeDrawer();
+  document.querySelectorAll('.dr-item[data-view]').forEach(el =>
+    el.classList.toggle('active', el.dataset.view===view));
+  renderView(view, params);
+}
+function renderView(view, params={}) {
+  const main = document.getElementById('main');
+  const map = { dashboard:renderDashboard, transactions:renderTransactions,
+    gig:renderGig, history:renderHistory, settings:renderSettings, categories:renderCategories };
+  if (map[view]) map[view](main, params);
+}
+function rerender() { renderView(curView); }
+async function refreshStats() {
+  APP.lastStats = await computeStats(curPeriodKey(APP.settings), APP.settings, APP.categories);
+}
+
+function setTopbar(title, sub='', showBack=false, backView='settings') {
+  document.getElementById('topbar-title').textContent = title;
+  document.getElementById('topbar-sub').textContent = sub;
+  const btn = document.getElementById('topbar-hamburger');
+  if (showBack) {
+    btn.innerHTML = '<i class="ti ti-chevron-left" style="font-size:24px"></i>';
+    btn.onclick = () => navigate(backView);
+  } else {
+    btn.innerHTML = '<div class="hamburger"><span></span><span></span><span></span></div>';
+    btn.onclick = openDrawer;
+  }
+}
+
+/* ============================================================
+   DRAWER
+============================================================ */
+function openDrawer() {
+  drawerOpen = true;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('visible');
+}
+function closeDrawer() {
+  drawerOpen = false;
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('visible');
+}
+function initDrawer() {
+  document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+  document.querySelectorAll('.dr-item[data-view]').forEach(el =>
+    el.addEventListener('click', () => navigate(el.dataset.view)));
+
+  let tsx=0, tsy=0, isHoriz=false;
+  document.addEventListener('touchstart', e => {
+    tsx = e.touches[0].clientX;
+    tsy = e.touches[0].clientY;
+    isHoriz = false;
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    const dx = Math.abs(e.touches[0].clientX - tsx);
+    const dy = Math.abs(e.touches[0].clientY - tsy);
+    if (dx > 8 || dy > 8) isHoriz = dx > dy;
+  }, { passive: true });
+  document.addEventListener('touchend', e => {
+    if (!isHoriz) return;
+    const dx = e.changedTouches[0].clientX - tsx;
+    if (!drawerOpen && dx > 40) openDrawer();
+    else if (drawerOpen && dx < -40) closeDrawer();
+  }, { passive: true });
+}
+
+/* ============================================================
+   FAB
+============================================================ */
+function initFAB() {
+  const fab=document.getElementById('fab'), dial=document.getElementById('fab-dial');
+  fab.addEventListener('click', e=>{
+    e.stopPropagation();
+    const open=dial.classList.toggle('visible');
+    fab.classList.toggle('open',open);
+  });
+  document.getElementById('fab-expense').addEventListener('click',()=>{
+    dial.classList.remove('visible'); fab.classList.remove('open'); showExpenseSheet();
+  });
+  document.getElementById('fab-gig').addEventListener('click',()=>{
+    dial.classList.remove('visible'); fab.classList.remove('open'); showGigSheet();
+  });
+  document.addEventListener('click',()=>{dial.classList.remove('visible');fab.classList.remove('open');});
+}
+
+/* ============================================================
+   SHEETS
+============================================================ */
+function showSheet(id){document.getElementById(id).classList.add('visible');document.body.classList.add('sheet-open');}
+function hideSheet(id){document.getElementById(id).classList.remove('visible');document.body.classList.remove('sheet-open');}
+function initSheets() {
+  document.getElementById('sheet-backdrop').addEventListener('click',()=>{
+    document.querySelectorAll('.bottom-sheet.visible').forEach(s=>hideSheet(s.id));
+  });
+  document.getElementById('expense-handle').addEventListener('click',()=>hideSheet('expense-sheet'));
+  document.getElementById('gig-handle').addEventListener('click',()=>hideSheet('gig-sheet'));
+}
+
+/* ============================================================
+   SWIPE TO REVEAL
+============================================================ */
+function initSwipe() {
+  let active=null;
+  document.querySelectorAll('.tx-swipe').forEach(el=>{
+    let sx=0, on=false;
+    el.addEventListener('touchstart',e=>{sx=e.changedTouches[0].clientX;on=true;},{passive:true});
+    el.addEventListener('touchend',e=>{
+      if(!on)return;on=false;
+      const dx=e.changedTouches[0].clientX-sx;
+      if(dx<-55){if(active&&active!==el)active.classList.remove('revealed');el.classList.add('revealed');active=el;}
+      else if(dx>30){el.classList.remove('revealed');if(active===el)active=null;}
+    },{passive:true});
+  });
+  document.addEventListener('touchstart',e=>{
+    if(active&&!active.contains(e.target)){active.classList.remove('revealed');active=null;}
+  },{passive:true});
+}
+
+/* ============================================================
+   EXPENSE SHEET
+============================================================ */
+let _editingTxId=null, _selectedCatId=null;
+
+function showExpenseSheet(editTx=null) {
+  const cats = APP.categories.filter(c=>c.type==='variable');
+  _editingTxId   = editTx ? editTx.id : null;
+  _selectedCatId = editTx ? editTx.categoryId : null;
+  document.getElementById('expense-title').textContent = editTx ? 'Edit expense' : 'Log expense';
+  document.getElementById('expense-amount').value = editTx ? editTx.amount.toFixed(2) : '';
+  document.getElementById('expense-note').value   = editTx ? (editTx.note||'') : '';
+  const grid = document.getElementById('expense-cat-grid');
+  grid.innerHTML = cats.map(c=>`
+    <div class="cat-grid-item${_selectedCatId===c.id?' selected':''}" data-cat="${c.id}">
+      <i class="ti ${c.icon}"></i><span>${c.name}</span>
+    </div>`).join('');
+  grid.querySelectorAll('.cat-grid-item').forEach(el=>
+    el.addEventListener('click',()=>{
+      _selectedCatId=el.dataset.cat;
+      grid.querySelectorAll('.cat-grid-item').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      updateExpenseHint();
+    }));
+  updateExpenseHint();
+  showSheet('expense-sheet');
+  setTimeout(()=>document.getElementById('expense-amount').focus(),350);
+}
+
+function updateExpenseHint() {
+  const hint   = document.getElementById('expense-hint');
+  const amount = parseFloat(document.getElementById('expense-amount').value)||0;
+  const stats  = APP.lastStats;
+  if (!_selectedCatId||!stats){hint.textContent='';return;}
+  const cat = APP.categories.find(c=>c.id===_selectedCatId);
+  const cs  = stats.byCategory[_selectedCatId];
+  if (!cat||!cs){hint.textContent='';return;}
+  const editAmt = _editingTxId ? (stats.expenses.find(t=>t.id===_editingTxId)?.amount||0) : 0;
+  const remaining = cs.remaining + editAmt;
+  const afterSpend = remaining - amount;
+  if (amount>0 && afterSpend<0) {
+    hint.textContent=`${fmtPos(Math.abs(afterSpend))} over budget in ${cat.name}`;
+    hint.className='remaining-hint warn';
+  } else {
+    hint.textContent=`${fmtPos(Math.max(0,remaining))} remaining in ${cat.name}`;
+    hint.className='remaining-hint';
+  }
+}
+
+document.getElementById('expense-amount').addEventListener('input', updateExpenseHint);
+document.getElementById('expense-save').addEventListener('click', async()=>{
+  const amount=parseFloat(document.getElementById('expense-amount').value);
+  if (!amount||amount<=0){alert('Please enter an amount.');return;}
+  if (!_selectedCatId){alert('Please select a category.');return;}
+  const note=document.getElementById('expense-note').value.trim();
+  const cfg=APP.settings, periodKey=curPeriodKey(cfg);
+  if (_editingTxId) {
+    const existing=await dbGet('transactions',_editingTxId);
+    await saveTx({...existing,amount,note,categoryId:_selectedCatId});
+  } else {
+    await saveTx({id:genId('tx'),type:'expense',categoryId:_selectedCatId,amount,note,date:todayStr(),periodKey,createdAt:Date.now()});
+  }
+  hideSheet('expense-sheet');
+  _editingTxId=null; _selectedCatId=null;
+  await refreshStats(); rerender();
+});
+
+/* ============================================================
+   GIG SHEET
+============================================================ */
+let _editingGigId=null;
+
+function showGigSheet(editGig=null) {
+  _editingGigId=editGig?editGig.id:null;
+  document.getElementById('gig-title').textContent=editGig?'Edit gig run':'Log gig run';
+  document.getElementById('gig-amount').value=editGig?editGig.amount.toFixed(2):'';
+  document.getElementById('gig-hours').value=editGig?Math.floor((editGig.totalMinutes||0)/60):'';
+  document.getElementById('gig-mins').value=editGig?(editGig.totalMinutes||0)%60:'';
+  document.getElementById('gig-note').value=editGig?(editGig.note||''):'';
+  updateGigRate();
+  showSheet('gig-sheet');
+  setTimeout(()=>document.getElementById('gig-amount').focus(),350);
+}
+
+function updateGigRate() {
+  const amount=parseFloat(document.getElementById('gig-amount').value)||0;
+  const hrs=(parseInt(document.getElementById('gig-hours').value)||0)+(parseInt(document.getElementById('gig-mins').value)||0)/60;
+  const rate=amount>0&&hrs>0?amount/hrs:0;
+  const preview=document.getElementById('gig-rate-preview');
+  preview.textContent=rate>0?`Est. ${fmtAUD(rate)}/hr for this run`:'';
+}
+
+['gig-amount','gig-hours','gig-mins'].forEach(id=>
+  document.getElementById(id).addEventListener('input',updateGigRate));
+
+document.getElementById('gig-save').addEventListener('click', async()=>{
+  const amount=parseFloat(document.getElementById('gig-amount').value);
+  if (!amount||amount<=0){alert('Please enter an amount.');return;}
+  const hours=parseInt(document.getElementById('gig-hours').value)||0;
+  const minutes=parseInt(document.getElementById('gig-mins').value)||0;
+  const totalMinutes=hours*60+minutes;
+  const hourlyRate=totalMinutes>0?Math.round((amount/(totalMinutes/60))*100)/100:0;
+  const note=document.getElementById('gig-note').value.trim();
+  const cfg=APP.settings, periodKey=curPeriodKey(cfg);
+  if (_editingGigId) {
+    const existing=await dbGet('transactions',_editingGigId);
+    await saveTx({...existing,amount,hours,minutes,totalMinutes,hourlyRate,note});
+  } else {
+    await saveTx({id:genId('gig'),type:'gig',categoryId:null,amount,note,date:todayStr(),periodKey,hours,minutes,totalMinutes,hourlyRate,createdAt:Date.now()});
+  }
+  hideSheet('gig-sheet');
+  _editingGigId=null;
+  await refreshStats(); rerender();
+});
+
+/* ============================================================
+   DELETE MODAL
+============================================================ */
+let _deletingId=null;
+function showDeleteModal(tx) {
+  _deletingId=tx.id;
+  const cat=tx.categoryId?APP.categories.find(c=>c.id===tx.categoryId):null;
+  document.getElementById('del-name').textContent=tx.note||(cat?cat.name:'Gig run');
+  document.getElementById('del-meta').textContent=(tx.type==='gig'?'Gig run':'Expense')+' - '+fmtAUD(tx.amount);
+  document.getElementById('delete-modal').classList.add('visible');
+}
+document.getElementById('del-cancel').addEventListener('click',()=>{
+  document.getElementById('delete-modal').classList.remove('visible'); _deletingId=null;
+});
+document.getElementById('delete-modal-overlay').addEventListener('click',()=>{
+  document.getElementById('delete-modal').classList.remove('visible'); _deletingId=null;
+});
+document.getElementById('del-confirm').addEventListener('click',async()=>{
+  if (!_deletingId) return;
+  await deleteTx(_deletingId);
+  document.getElementById('delete-modal').classList.remove('visible'); _deletingId=null;
+  await refreshStats(); rerender();
+});
+
+/* ============================================================
+   CATEGORY MODAL
+============================================================ */
+const ICON_OPTIONS=['ti-home','ti-wifi','ti-device-mobile','ti-shopping-cart','ti-coffee','ti-car',
+  'ti-device-gamepad','ti-shirt','ti-heart','ti-paw','ti-plane','ti-tool',
+  'ti-music','ti-book','ti-bike','ti-pill','ti-cash','ti-dots'];
+let _editingCatId=null, _catType='variable', _catIcon='ti-shopping-cart', _catFrequency='period';
+
+function showCatModal(cat=null) {
+  _editingCatId=cat?cat.id:null;
+  _catType=cat?cat.type:'variable';
+  _catIcon=cat?cat.icon:'ti-shopping-cart';
+  _catFrequency=cat?.billFrequency||'period';
+  document.getElementById('cat-modal-title').textContent=cat?'Edit category':'Add category';
+  document.getElementById('cat-name').value=cat?cat.name:'';
+  document.getElementById('cat-budget').value=cat?cat.budget.toFixed(2):'';
+  document.getElementById('cat-delete').style.display=cat?'':'none';
+  updateCatTypeUI(); renderIconPicker();
+  document.getElementById('cat-modal').classList.add('visible');
+}
+function updateCatTypeUI() {
+  document.getElementById('cat-type-variable').classList.toggle('active',_catType==='variable');
+  document.getElementById('cat-type-fixed').classList.toggle('active',_catType==='fixed');
+  document.getElementById('cat-freq-group').style.display=_catType==='fixed'?'':'none';
+  updateCatFreqUI();
+}
+function updateCatFreqUI() {
+  document.getElementById('cat-freq-period').classList.toggle('active',_catFrequency==='period');
+  document.getElementById('cat-freq-monthly').classList.toggle('active',_catFrequency==='monthly');
+  const lbl = document.getElementById('cat-budget');
+  if (lbl) lbl.placeholder = _catType==='fixed'&&_catFrequency==='monthly' ? 'Monthly amount' : '0.00';
+}
+function renderIconPicker() {
+  document.getElementById('icon-picker').innerHTML=ICON_OPTIONS.map(ic=>
+    `<button class="icon-btn${_catIcon===ic?' selected':''}" data-icon="${ic}"><i class="ti ${ic}"></i></button>`
+  ).join('');
+  document.querySelectorAll('.icon-btn').forEach(btn=>
+    btn.addEventListener('click',()=>{
+      _catIcon=btn.dataset.icon;
+      document.querySelectorAll('.icon-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+    }));
+}
+document.getElementById('cat-type-variable').addEventListener('click',()=>{_catType='variable';updateCatTypeUI();});
+document.getElementById('cat-type-fixed').addEventListener('click',()=>{_catType='fixed';updateCatTypeUI();});
+document.getElementById('cat-freq-period').addEventListener('click',()=>{_catFrequency='period';updateCatFreqUI();});
+document.getElementById('cat-freq-monthly').addEventListener('click',()=>{_catFrequency='monthly';updateCatFreqUI();});
+document.getElementById('cat-modal-close').addEventListener('click',()=>document.getElementById('cat-modal').classList.remove('visible'));
+document.getElementById('cat-cancel').addEventListener('click',()=>document.getElementById('cat-modal').classList.remove('visible'));
+document.getElementById('cat-modal-overlay').addEventListener('click',()=>document.getElementById('cat-modal').classList.remove('visible'));
+document.getElementById('cat-save').addEventListener('click',async()=>{
+  const name=document.getElementById('cat-name').value.trim();
+  const budget=parseFloat(document.getElementById('cat-budget').value)||0;
+  if (!name){alert('Please enter a category name.');return;}
+  if (_editingCatId) {
+    const existing=APP.categories.find(c=>c.id===_editingCatId);
+    await saveCategory({...existing,name,budget,type:_catType,icon:_catIcon,billFrequency:_catFrequency});
+  } else {
+    const maxOrder=APP.categories.length?Math.max(...APP.categories.map(c=>c.order)):-1;
+    await saveCategory({id:genId('cat'),name,budget,type:_catType,icon:_catIcon,billFrequency:_catFrequency,order:maxOrder+1,createdAt:Date.now()});
+  }
+  document.getElementById('cat-modal').classList.remove('visible');
+  APP.categories=await getCategories();
+  if (curView==='categories') renderView('categories');
+  else if (curView==='dashboard'){await refreshStats();renderView('dashboard');}
+});
+document.getElementById('cat-delete').addEventListener('click',async()=>{
+  if (!_editingCatId||!confirm('Delete this category?')) return;
+  await deleteCategory(_editingCatId);
+  document.getElementById('cat-modal').classList.remove('visible');
+  APP.categories=await getCategories();
+  if (curView==='categories') renderView('categories');
+  else if (curView==='dashboard'){await refreshStats();renderView('dashboard');}
+});
+
+/* ============================================================
+   VIEW: DASHBOARD
+============================================================ */
+async function renderDashboard(main) {
+  const cfg=APP.settings, cats=APP.categories;
+  const pk=curPeriodKey(cfg), end=getPeriodEnd(pk,cfg);
+  setTopbar('float', fmtPeriodRange(pk,end));
+  const stats=await computeStats(pk,cfg,cats);
+  APP.lastStats=stats;
+  const pace=await getDailyPace(pk,cfg);
+  const alerts=getAlerts(stats,cfg);
+  const isFortnight=cfg.payCycle!=='weekly';
+  const remColor=stats.remaining<0?'red':stats.remaining<stats.totalIncome*0.15?'amber':'green';
+  const pct=Math.round(stats.periodProgress*100);
+
+  const pRow=days=>`<div class="pace-row">${days.map(d=>`
+    <div class="pace-day">
+      <div class="pace-bar-wrap">
+        <div class="pace-bar ${d.isToday?'today':d.isPast?'past':'future'}" style="height:${Math.max(d.heightPct,2)}%"></div>
+      </div>
+      <div class="pace-label${d.isToday?' today':''}">${d.label}</div>
+    </div>`).join('')}</div>`;
+
+  const paceChart=isFortnight
+    ?`<div class="pace-chart-wrap">${pRow(pace.slice(0,7))}${pRow(pace.slice(7,14))}</div>`
+    :`<div class="pace-chart-wrap">${pRow(pace)}</div>`;
+
+  const alertsHtml=alerts.map(a=>`<div class="alert-bar ${a.type}"><i class="ti ${a.icon}"></i><span>${a.msg}</span></div>`).join('');
+
+  const gigSub=stats.gigStats.runCount>0?`${stats.gigStats.runCount} run${stats.gigStats.runCount!==1?'s':''}`:'No runs this period';
+
+  const varCard=stats.variableCats.length?`
+    <div class="card">
+      <div class="card-header">Variable budgets</div>
+      <div class="card-body">
+        ${stats.variableCats.map(c=>{
+          const cs=stats.byCategory[c.id];
+          const pctW=Math.min(cs.pct*100,100).toFixed(1);
+          const sub=cs.remaining<0
+            ?`<div class="budget-sub over">${fmtPos(Math.abs(cs.remaining))} over budget</div>`
+            :`<div class="budget-sub ${cs.status}">${fmtPos(cs.remaining)} remaining</div>`;
+          return `<div class="budget-row">
+            <div class="budget-row-top">
+              <div class="budget-icon"><i class="ti ${c.icon}"></i></div>
+              <div class="budget-name">${c.name}</div>
+              <div class="budget-amounts"><strong>${fmtPos(cs.spent)}</strong> / ${fmtPos(c.budget)}</div>
+            </div>
+            <div class="progress-bar"><div class="progress-fill ${cs.status}" style="width:${pctW}%"></div></div>
+            ${sub}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:'';
+
+  const fixedCard=stats.fixedCats.length?`
+    <div class="card">
+      <div class="card-header">Fixed bills</div>
+      <div class="card-body">
+        <div class="bills-chips">
+          ${stats.fixedCats.map(c=>{
+            const pb=perPeriodBudget(c,cfg);
+            const freqLabel=c.billFrequency==='monthly'?`<span class="bill-chip-freq">monthly</span>`:'';
+            return `<div class="bill-chip"><i class="ti ${c.icon}"></i>
+              <span class="bill-chip-name">${c.name}</span>
+              ${freqLabel}
+              <span class="bill-chip-amt">${fmtPos(pb)}/period</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`:'';
+
+  main.innerHTML=`
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Remaining</div>
+        <div class="metric-value ${remColor}">${fmtAUD(stats.remaining)}</div>
+        <div class="metric-sub">of ${fmtPos(stats.totalIncome)}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Gig earned</div>
+        <div class="metric-value green">${fmtPos(stats.gigIncome)}</div>
+        <div class="metric-sub">${gigSub}</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Spent</div>
+        <div class="metric-value amber">${fmtPos(stats.totalSpent)}</div>
+        <div class="metric-sub">fixed + variable</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Period</div>
+        <div class="metric-value">${pct}%</div>
+        <div class="metric-sub">complete</div>
+      </div>
+    </div>
+    ${alertsHtml}
+    <div class="card">
+      <div class="card-header">Spending pace</div>
+      <div class="card-body">
+        ${paceChart}
+        <div class="pace-legend">
+          <div class="pace-legend-item"><div class="legend-dot past"></div> Actual</div>
+          <div class="pace-legend-item"><div class="legend-dot future"></div> Projected</div>
+          <div class="pace-legend-item"><div class="legend-dot today"></div> Today</div>
+        </div>
+      </div>
+    </div>
+    ${varCard}${fixedCard}`;
+}
+
+/* ============================================================
+   VIEW: TRANSACTIONS
+============================================================ */
+let _txPK=null;
+
+async function renderTransactions(main) {
+  const cfg=APP.settings;
+  if (!_txPK) _txPK=curPeriodKey(cfg);
+  const curPK=curPeriodKey(cfg), end=getPeriodEnd(_txPK,cfg);
+  setTopbar('Transactions');
+  const allTxs=await getTxForPeriod(_txPK);
+  const txs=[...allTxs];
+  txs.sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt);
+  const grouped={};
+  txs.forEach(t=>{if(!grouped[t.date])grouped[t.date]=[];grouped[t.date].push(t);});
+  const days=Object.keys(grouped).sort((a,b)=>b.localeCompare(a));
+
+  const txHtml=days.length?days.map(date=>{
+    const d=parseDate(date);
+    const label=`${DAY_NAMES_FULL[d.getDay()]}, ${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`;
+    return `<div class="tx-group">
+      <div class="tx-day-label">${label}</div>
+      ${grouped[date].map(t=>{
+        const cat=t.categoryId?APP.categories.find(c=>c.id===t.categoryId):null;
+        const icon=t.type==='gig'?'ti-bike':(cat?.icon||'ti-receipt');
+        const name=t.note||(t.type==='gig'?'Gig run':(cat?.name||'Expense'));
+        const sub=t.type==='gig'?`Gig run - ${fmtDur(t.totalMinutes)} - ${fmtAUD(t.hourlyRate)}/hr`:(cat?.name||'');
+        return `<div class="tx-swipe" data-id="${t.id}">
+          <div class="tx-row">
+            <div class="tx-icon"><i class="ti ${icon}"></i></div>
+            <div class="tx-info">
+              <div class="tx-name">${name}</div>
+              ${sub?`<div class="tx-sub">${sub}</div>`:''}
+            </div>
+            <div class="tx-amount ${t.type}">${t.type==='gig'?'+':''}${fmtAUD(t.amount)}</div>
+          </div>
+          <div class="tx-actions">
+            <button class="tx-action edit"   data-id="${t.id}"><i class="ti ti-edit"></i></button>
+            <button class="tx-action delete" data-id="${t.id}"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join(''):'<div class="empty-state">No transactions this period.</div>';
+
+  main.innerHTML=`
+    <div class="period-nav">
+      <button class="period-nav-btn" id="tx-prev"><i class="ti ti-chevron-left"></i></button>
+      <div class="period-nav-label">${fmtPeriodRange(_txPK,end)}</div>
+      <button class="period-nav-btn" id="tx-next" ${_txPK>=curPK?'disabled':''}><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="swipe-hint"><i class="ti ti-arrow-left" style="font-size:14px"></i> Swipe left to edit or delete</div>
+    ${txHtml}`;
+
+  document.getElementById('tx-prev').addEventListener('click',()=>{_txPK=prevPK(_txPK,cfg);renderTransactions(main);});
+  document.getElementById('tx-next').addEventListener('click',()=>{if(_txPK<curPK){_txPK=nextPK(_txPK,cfg);renderTransactions(main);}});
+
+  document.querySelectorAll('.tx-action.edit').forEach(btn=>
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const tx=allTxs.find(t=>t.id===btn.dataset.id);
+      if (!tx) return;
+      tx.type==='gig'?showGigSheet(tx):showExpenseSheet(tx);
+    }));
+  document.querySelectorAll('.tx-action.delete').forEach(btn=>
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const tx=allTxs.find(t=>t.id===btn.dataset.id);
+      if (tx) showDeleteModal(tx);
+    }));
+  initSwipe();
+}
+
+/* ============================================================
+   VIEW: GIG RUNS
+============================================================ */
+let _gigPK=null;
+
+async function renderGig(main) {
+  const cfg=APP.settings;
+  if (!_gigPK) _gigPK=curPeriodKey(cfg);
+  const curPK=curPeriodKey(cfg), end=getPeriodEnd(_gigPK,cfg);
+  setTopbar('Gig runs');
+  const txs=await getTxForPeriod(_gigPK);
+  const runs=txs.filter(t=>t.type==='gig').sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt);
+  const gs=computeGigStats(runs);
+  const heroSub=gs.runCount>0?`${gs.runCount} run${gs.runCount!==1?'s':''} - ${fmtDur(gs.totalMinutes)} clocked - avg ${fmtAUD(gs.avgHourlyRate)}/hr`:'No runs this period';
+  const pills=gs.runCount>1?`<div class="gig-hero-pills"><span class="pill green">Best ${fmtAUD(gs.bestRate)}/hr</span><span class="pill red">Worst ${fmtAUD(gs.worstRate)}/hr</span></div>`:'';
+  const runList=runs.length?`
+    <div class="card"><div class="card-body" style="padding-top:8px;padding-bottom:8px">
+      ${runs.map(r=>{
+        const d=parseDate(r.date);
+        const dl=`${DAY_NAMES_FULL[d.getDay()]}, ${d.getDate()} ${MONTH_SHORT[d.getMonth()]}`;
+        return `<div class="tx-swipe" data-id="${r.id}">
+          <div class="tx-row">
+            <div class="tx-icon"><i class="ti ti-bike"></i></div>
+            <div class="tx-info">
+              <div class="tx-name">${r.note||'Gig run'}</div>
+              <div class="tx-sub">${dl} - ${fmtDur(r.totalMinutes)}</div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div class="tx-amount gig">+${fmtAUD(r.amount)}</div>
+              <div style="font-size:11px;color:var(--text3)">${fmtAUD(r.hourlyRate)}/hr</div>
+            </div>
+          </div>
+          <div class="tx-actions">
+            <button class="tx-action edit"   data-id="${r.id}"><i class="ti ti-edit"></i></button>
+            <button class="tx-action delete" data-id="${r.id}"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div></div>`:'<div class="empty-state">No gig runs this period.</div>';
+
+  main.innerHTML=`
+    <div class="period-nav">
+      <button class="period-nav-btn" id="gig-prev"><i class="ti ti-chevron-left"></i></button>
+      <div class="period-nav-label">${fmtPeriodRange(_gigPK,end)}</div>
+      <button class="period-nav-btn" id="gig-next" ${_gigPK>=curPK?'disabled':''}><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="gig-hero">
+      <div class="gig-hero-label">Earned this period</div>
+      <div class="gig-hero-amount">${fmtAUD(gs.totalEarned)}</div>
+      <div class="gig-hero-sub">${heroSub}</div>
+      ${pills}
+    </div>${runList}`;
+
+  document.getElementById('gig-prev').addEventListener('click',()=>{_gigPK=prevPK(_gigPK,cfg);renderGig(main);});
+  document.getElementById('gig-next').addEventListener('click',()=>{if(_gigPK<curPK){_gigPK=nextPK(_gigPK,cfg);renderGig(main);}});
+  document.querySelectorAll('.tx-action.edit').forEach(btn=>
+    btn.addEventListener('click',e=>{e.stopPropagation();const r=runs.find(t=>t.id===btn.dataset.id);if(r)showGigSheet(r);}));
+  document.querySelectorAll('.tx-action.delete').forEach(btn=>
+    btn.addEventListener('click',e=>{e.stopPropagation();const r=runs.find(t=>t.id===btn.dataset.id);if(r)showDeleteModal(r);}));
+  initSwipe();
+}
+
+/* ============================================================
+   VIEW: HISTORY
+============================================================ */
+let _histTab='periods';
+
+async function renderHistory(main) {
+  setTopbar('History');
+  main.innerHTML=`
+    <div class="seg-control">
+      <button class="seg-btn ${_histTab==='periods'?'active':''}" id="hist-periods">By period</button>
+      <button class="seg-btn ${_histTab==='monthly'?'active':''}" id="hist-monthly">By month</button>
+    </div>
+    <div id="hist-content"><div class="loading">Loading...</div></div>`;
+  document.getElementById('hist-periods').addEventListener('click',()=>{_histTab='periods';renderHistory(main);});
+  document.getElementById('hist-monthly').addEventListener('click',()=>{_histTab='monthly';renderHistory(main);});
+  _histTab==='periods'?await renderHistPeriods():await renderHistMonthly();
+}
+
+async function renderHistPeriods() {
+  const cfg=APP.settings, cats=APP.categories;
+  const all=await getAllTx();
+  const pks=[...new Set(all.map(t=>t.periodKey))];
+  const curPK=curPeriodKey(cfg);
+  if (!pks.includes(curPK)) pks.push(curPK);
+  pks.sort((a,b)=>b.localeCompare(a));
+  const cards=await Promise.all(pks.map(async pk=>{
+    const stats=await computeStats(pk,cfg,cats);
+    const end=getPeriodEnd(pk,cfg);
+    const isCur=pk===curPK;
+    const badge=isCur
+      ?`<span class="pill blue">${Math.round(stats.periodProgress*100)}% done</span>`
+      :stats.remaining>=0?`<span class="pill green">Saved ${fmtPos(stats.remaining)}</span>`
+      :`<span class="pill red">Over by ${fmtPos(Math.abs(stats.remaining))}</span>`;
+    const remColor=stats.remaining<0?'red':'green';
+    return `<div class="hist-card">
+      <div class="hist-card-header"><span class="hist-card-header-label">${fmtPeriodRange(pk,end)}</span>${badge}</div>
+      <div class="hist-row"><span class="hist-row-label">Base income</span><span class="hist-row-value green">+${fmtPos(stats.baseIncome)}</span></div>
+      ${stats.gigIncome>0?`<div class="hist-row"><span class="hist-row-label">Gig income</span><span class="hist-row-value green">+${fmtPos(stats.gigIncome)}</span></div>`:''}
+      <div class="hist-row"><span class="hist-row-label">Fixed bills</span><span class="hist-row-value">-${fmtPos(stats.fixedTotal)}</span></div>
+      <div class="hist-row"><span class="hist-row-label">Variable spent</span><span class="hist-row-value">-${fmtPos(stats.varSpent)}</span></div>
+      <div class="hist-divider"></div>
+      <div class="hist-row bold"><span class="hist-row-label">Remaining</span><span class="hist-row-value ${remColor}">${fmtAUD(stats.remaining)}</span></div>
+    </div>`;
+  }));
+  document.getElementById('hist-content').innerHTML=cards.join('')||'<div class="empty-state">No history yet.</div>';
+}
+
+async function renderHistMonthly() {
+  const cfg=APP.settings, varCats=APP.categories.filter(c=>c.type==='variable');
+  const all=await getAllTx();
+  const byMonth={};
+  all.forEach(t=>{
+    const d=parseDate(t.date);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(!byMonth[key])byMonth[key]=[];byMonth[key].push(t);
+  });
+  const monthKeys=Object.keys(byMonth).sort((a,b)=>b.localeCompare(a));
+  if (!monthKeys.length){document.getElementById('hist-content').innerHTML='<div class="empty-state">No data yet.</div>';return;}
+  const cards=monthKeys.map(mk=>{
+    const txs=byMonth[mk], [yr,mo]=mk.split('-').map(Number);
+    const expenses=txs.filter(t=>t.type==='expense'), gigs=txs.filter(t=>t.type==='gig');
+    const perPeriods=cfg.payCycle==='weekly'?4:2;
+    const totalIn=(cfg.income||0)*perPeriods+gigs.reduce((s,g)=>s+g.amount,0);
+    const totalOut=expenses.reduce((s,e)=>s+e.amount,0);
+    const net=totalIn-totalOut;
+    const spentByCat={};
+    expenses.forEach(e=>{if(e.categoryId)spentByCat[e.categoryId]=(spentByCat[e.categoryId]||0)+e.amount;});
+    const maxSpend=Math.max(...varCats.map(c=>spentByCat[c.id]||0),1);
+    const catRows=varCats.filter(c=>spentByCat[c.id]>0).map(c=>{
+      const spent=spentByCat[c.id]||0, pct=((spent/maxSpend)*100).toFixed(1);
+      return `<div class="hist-cat-row"><span class="hist-cat-name">${c.name}</span><div class="hist-mini-bar"><div class="hist-mini-fill" style="width:${pct}%"></div></div><span class="hist-cat-amt">${fmtPos(spent)}</span></div>`;
+    }).join('');
+    const gs=computeGigStats(gigs);
+    const gigRow=gigs.length?`<div class="hist-row"><span class="hist-row-label">${gs.runCount} gig run${gs.runCount!==1?'s':''} - ${fmtDur(gs.totalMinutes)}</span><span class="hist-row-value green">+${fmtPos(gs.totalEarned)}</span></div>`:'';
+    return `<div class="hist-card">
+      <div class="hist-card-header"><span class="hist-card-header-label">${MONTH_NAMES[mo-1]} ${yr}</span><span class="pill ${net>=0?'green':'red'}">Net ${net>=0?'+':''}${fmtAUD(net)}</span></div>
+      <div class="hist-row"><span class="hist-row-label">Total in</span><span class="hist-row-value green">+${fmtPos(totalIn)}</span></div>
+      ${gigRow}
+      <div class="hist-row"><span class="hist-row-label">Total out</span><span class="hist-row-value red">-${fmtPos(totalOut)}</span></div>
+      <div class="hist-divider"></div>
+      ${catRows?`<div class="hist-cat-section"><div class="hist-cat-label">By category</div>${catRows}</div>`:''}
+    </div>`;
+  });
+  document.getElementById('hist-content').innerHTML=cards.join('');
+}
+
+/* ============================================================
+   VIEW: SETTINGS
+============================================================ */
+async function renderSettings(main) {
+  setTopbar('Settings');
+  const cfg=APP.settings;
+  main.innerHTML=`
+    <div class="settings-section">
+      <div class="settings-section-label">Income</div>
+      <div class="settings-card">
+        <div class="settings-row">
+          <div><div class="settings-row-label">Pay cycle</div></div>
+          <div class="seg-sm">
+            <button class="seg-sm-btn ${cfg.payCycle!=='weekly'?'active':''}" id="cycle-fort">Fortnightly</button>
+            <button class="seg-sm-btn ${cfg.payCycle==='weekly'?'active':''}" id="cycle-week">Weekly</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">${cfg.payCycle==='weekly'?'Weekly':'Fortnightly'} income</div></div>
+          <input class="s-input" id="s-income" type="number" inputmode="decimal" value="${cfg.income||0}" style="width:110px;text-align:right">
+        </div>
+        <div class="settings-row">
+          <div><div class="settings-row-label">Pay day</div></div>
+          <select class="s-select" id="s-payday">
+            ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d,i)=>`<option value="${i}" ${cfg.payDay==i?'selected':''}>${d}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-label">Budgets</div>
+      <div class="settings-card">
+        <div class="settings-row settings-nav-row" id="s-cats">
+          <div><div class="settings-row-label">Manage categories</div></div>
+          <i class="ti ti-chevron-right" style="color:var(--text3)"></i>
+        </div>
+
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-label">Alerts</div>
+      <div class="settings-card">
+        <div class="settings-row"><div class="settings-row-label">Spending pace alerts</div><div class="toggle ${cfg.alertPace?'on':''}" id="s-alertPace"></div></div>
+        <div class="settings-row"><div class="settings-row-label">Over-budget alert</div><div class="toggle ${cfg.alertOver?'on':''}" id="s-alertOver"></div></div>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-section-label">Data</div>
+      <div class="settings-card">
+        <div class="settings-row settings-nav-row" id="s-backup">
+          <div>
+            <div class="settings-row-label">Backup data</div>
+            <div class="settings-row-sub">Saves settings, categories and transactions</div>
+          </div>
+          <i class="ti ti-download" style="color:var(--text3)"></i>
+        </div>
+        <div class="settings-row settings-nav-row" id="s-restore">
+          <div>
+            <div class="settings-row-label">Restore from backup</div>
+            <div class="settings-row-sub">Replaces all current data</div>
+          </div>
+          <i class="ti ti-upload" style="color:var(--text3)"></i>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="s-restore-input" accept=".json" style="display:none">
+    <div class="settings-section"><button class="btn-danger" id="s-clear">Clear all data</button></div>`;
+
+  document.getElementById('cycle-fort').addEventListener('click',async()=>{APP.settings.payCycle='fortnightly';await setSetting('payCycle','fortnightly');renderSettings(main);});
+  document.getElementById('cycle-week').addEventListener('click',async()=>{APP.settings.payCycle='weekly';await setSetting('payCycle','weekly');renderSettings(main);});
+  document.getElementById('s-income').addEventListener('change',async e=>{const v=parseFloat(e.target.value)||0;APP.settings.income=v;await setSetting('income',v);});
+  document.getElementById('s-payday').addEventListener('change',async e=>{const v=parseInt(e.target.value);APP.settings.payDay=v;await setSetting('payDay',v);});
+  ['alertPace','alertOver'].forEach(key=>{
+    document.getElementById(`s-${key}`).addEventListener('click',async function(){
+      APP.settings[key]=!APP.settings[key];await setSetting(key,APP.settings[key]);this.classList.toggle('on',APP.settings[key]);
+    });
+  });
+  document.getElementById('s-cats').addEventListener('click',()=>navigate('categories'));
+  // Backup
+  document.getElementById('s-backup').addEventListener('click', async () => {
+    const backup = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: await getAllSettings(),
+      categories: await getCategories(),
+      transactions: await getAllTx()
+    };
+    const date = new Date().toISOString().slice(0,10);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'}));
+    a.download = `float-backup-${date}.json`;
+    a.click();
+  });
+
+  // Restore
+  const restoreInput = document.getElementById('s-restore-input');
+  document.getElementById('s-restore').addEventListener('click', () => restoreInput.click());
+  restoreInput.addEventListener('change', async () => {
+    const file = restoreInput.files[0];
+    if (!file) return;
+    const text = await file.text();
+    let backup;
+    try { backup = JSON.parse(text); } catch { alert('Invalid backup file.'); return; }
+    if (!backup.settings || !backup.categories || !backup.transactions) {
+      alert('This does not look like a valid float backup.'); return;
+    }
+    if (!confirm('This will replace ALL current data with the backup. Continue?')) return;
+    await indexedDB.deleteDatabase('float');
+    _db = null;
+    await openDB();
+    for (const [k,v] of Object.entries(backup.settings)) await setSetting(k, v);
+    for (const c of backup.categories) await saveCategory(c);
+    for (const t of backup.transactions) await saveTx(t);
+    APP.settings = await getAllSettings();
+    APP.categories = await getCategories();
+    alert('Restore complete.');
+    navigate('dashboard');
+  });
+  document.getElementById('s-clear').addEventListener('click',()=>{
+    if(confirm('This will delete ALL your data. Are you sure?')){indexedDB.deleteDatabase('float');location.reload();}
+  });
+}
+
+/* ============================================================
+   VIEW: CATEGORIES
+============================================================ */
+async function renderCategories(main) {
+  setTopbar('Categories','',true,'settings');
+  const cats=APP.categories;
+  const fixed=cats.filter(c=>c.type==='fixed'), variable=cats.filter(c=>c.type==='variable');
+  const catRow=c=>`
+    <div class="cat-row" data-id="${c.id}">
+      <div class="cat-icon"><i class="ti ${c.icon}"></i></div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-meta">${fmtPos(c.budget)} / period
+          <span class="pill ${c.type==='fixed'?'amber':'blue'}" style="font-size:10px;padding:2px 7px">${c.type==='fixed'?'Fixed':'Variable'}</span>
+        </div>
+      </div>
+      <i class="ti ti-chevron-right" style="color:var(--text3)"></i>
+    </div>`;
+  main.innerHTML=`
+    <p class="cat-help">Tap to edit. Fixed bills are deducted automatically each period.</p>
+    ${fixed.length?`<div class="settings-section-label">Fixed bills</div><div class="card" style="margin-bottom:14px">${fixed.map(catRow).join('')}</div>`:''}
+    ${variable.length?`<div class="settings-section-label">Variable budgets</div><div class="card">${variable.map(catRow).join('')}</div>`:''}
+    <button class="add-cat-btn" id="add-cat-btn"><i class="ti ti-plus"></i> Add category</button>`;
+  document.querySelectorAll('.cat-row').forEach(el=>
+    el.addEventListener('click',()=>{const cat=APP.categories.find(c=>c.id===el.dataset.id);if(cat)showCatModal(cat);}));
+  document.getElementById('add-cat-btn').addEventListener('click',()=>showCatModal());
+}
+
+/* ============================================================
+   BOOT
+============================================================ */
+async function boot() {
+  await seedIfNeeded();
+  const settings=await getAllSettings(), categories=await getCategories();
+  APP={settings,categories,lastStats:null};
+  initDrawer(); initFAB(); initSheets();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  navigate('dashboard');
+}
+boot().catch(console.error);
+</script>
+</body>
+</html>
